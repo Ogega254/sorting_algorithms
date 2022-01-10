@@ -1,76 +1,44 @@
 #include "sort.h"
-
 /**
- * radix_sort - sort array with radix method
+ * radix_sort - radix sort function
+ * Description: radix sort algorithm test
  * @array: array to sort
  * @size: size of the array
- *
- * Return: nothing
-*/
-
+ * Return: void
+ */
 void radix_sort(int *array, size_t size)
 {
-	int i, j, x, y, cantRep, max, div = 1, t = 0;
-	int buckets[10][1000];
+	unsigned int j;
+	int p, max, i;
+	int *temp;
 
-	if (!array || size < 2)
+	max = 0;
+	if (array == NULL || size < 2)
 		return;
-
-	max = array[0];
-	for (i = 1; i < (int) size; i++)
-		if (array[i] > max)
-			max = array[i];
-
-	for (i = 0; i < 10; ++i)
-		for (j = 0; j < 1000; ++j)
-			buckets[i][j] = -1;
-
-	cantRep = getCantRep(max);
-
-	for (i = 0; i < cantRep; ++i)
+	for (j = 0; j < size; j++)
 	{
-		for (j = 0; j < (int) size; ++j)
-		{
-			for (y = 0; buckets[(array[j] / div) % 10][y] != -1; y++)
-				;
-			buckets[(array[j] / div) % 10][y] = array[j];
-		}
-		div = div * 10;
-		t = 0;
-		for (x = 0; x < 10; ++x)
-		{
-			for (y = 0; buckets[x][y] != -1; y++)
-			{
-				array[t] = buckets[x][y];
-				buckets[x][y] = -1;
-				t++;
-			}
-		}
-		print_array(array, size);
+		if (*(array + j) > max)
+			max = *(array + j);
 	}
-}
-
-/**
- * getCantRep - Returns the number of digits of the largest number in the array
- * @num: The largest number
- *
- * Return: Number of digits of the num
-*/
-
-int getCantRep(int num)
-{
-	bool flag = true;
-	int cont = 0;
-
-	while (flag)
+	for (p = 1; max / p > 0; p *= 10)
 	{
-		flag = false;
-		if (num > 0)
-		{
-			num = num / 10;
-			cont++;
-			flag = true;
-		}
+	int index[10] = {0};
+
+	temp = malloc(sizeof(int) * size);
+	if (temp == NULL)
+		return;
+	for (i = 0; i < (int) size; i++)
+		index[(*(array + i) / p) % 10]++;
+	for (i = 1; i < 10; i++)
+		index[i] += index[i - 1];
+	for (i = size - 1; i >= 0; i--)
+	{
+		temp[index[(*(array + i) / p) % 10] - 1] = *(array + i);
+		index[(*(array + i) / p) % 10]--;
 	}
-	return (cont);
+	for (i = 0; i < (int) size; i++)
+		*(array + i) = temp[i];
+	free(temp);
+	print_array(array, size);
+	}
 }
